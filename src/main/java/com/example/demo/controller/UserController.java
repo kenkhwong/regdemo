@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,11 +37,6 @@ public class UserController {
 
         registrationService.registerUser(user);
 
-        try {
-            return ResponseEntity.created(new URI("/users"))
-                    .build();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
+        return ResponseEntity.created(URI.create("/users")).build();
     }
 }

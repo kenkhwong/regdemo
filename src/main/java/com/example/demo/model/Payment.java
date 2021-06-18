@@ -2,10 +2,12 @@ package com.example.demo.model;
 
 import com.example.demo.constraints.Digits;
 
+import javax.persistence.Entity;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-public class Payment {
+@Entity
+public class Payment extends GenericEntity {
 
     @NotBlank(message = "Credit card is mandatory")
     @Size(min = 16, max = 16, message = "Credit card must have 16 digits")
@@ -16,6 +18,8 @@ public class Payment {
     @Size(min = 3, max = 3, message = "Amount must have 3 digits")
     @Digits(message = "Amount must be a number")
     private String amount;
+
+    public Payment() {}
 
     public Payment(String creditCardNo, String amount) {
         this.creditCardNo = creditCardNo;

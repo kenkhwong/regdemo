@@ -1,49 +1,48 @@
 package com.example.demo.service;
 
+import com.example.demo.jpa.UserRepository;
 import com.example.demo.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class RegistrationService {
 
     private static final int ageLimit = 18;
 
-    private final List<User> registeredUsers = new ArrayList<>();
+    @Autowired
+    UserRepository userRepository;
 
     public List<User> getAllUsers() {
-        return List.copyOf(registeredUsers);
+        return userRepository.findAll();
     }
 
     public List<User> getUsers(boolean withCreditCard) {
-        return registeredUsers.stream().filter(user ->
-                (withCreditCard && user.getCreditCardNo() != null)
-                        || (!withCreditCard && user.getCreditCardNo() == null))
-                .collect(Collectors.toList());
+        if (withCreditCard)
+            return userRepository.findByCreditCardNoNotNull();
+        else
+            return userRepository.findByCreditCardNoIsNull();
     }
 
     public List<User> findUsersByCreditCard(String cardNo) {
-        return registeredUsers.stream().filter(user ->
-                user.getCreditCardNo() != null && user.getCreditCardNo().equals(cardNo))
-                .collect(Collectors.toList());
+        return userRepository.findByCreditCardNo(cardNo);
     }
 
+    @Transactional
     public void registerUser(User user) throws UnderAgeException, UserExistsException {
         //check the user age
         if (Period.between(user.getDateOfBirth(),LocalDate.now()).getYears() < ageLimit)
             throw new UnderAgeException();
 
         //check existing users
-        for (User existingUser : registeredUsers) {
-            if (existingUser.getUsername().equals(user.getUsername()))
-                throw new UserExistsException();
-        }
+        if (userRepository.findByUsername(user.getUsername()).isPresent())
+            throw new UserExistsException();
 
-        registeredUsers.add(user);
+        userRepository.save(user);
     }
 }

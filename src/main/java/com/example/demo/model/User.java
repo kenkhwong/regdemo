@@ -5,10 +5,12 @@ import com.example.demo.constraints.ContainsDigit;
 import com.example.demo.constraints.ContainsUpperCase;
 import com.example.demo.constraints.Digits;
 
+import javax.persistence.Entity;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 
-public class User {
+@Entity
+public class User extends GenericEntity {
 
     @NotBlank(message = "Username is mandatory")
     @Alphanumeric(message = "Username must be alphanumeric")
@@ -30,6 +32,8 @@ public class User {
     @Size(min = 16, max = 16, message = "Credit card must have 16 digits")
     @Digits(message = "Credit card number is invalid")
     private String creditCardNo;
+
+    public User() {}
 
     public User(String username, String password, String email, LocalDate dateOfBirth, String creditCardNo) {
         this.username = username;

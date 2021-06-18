@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.jpa.PaymentRepository;
 import com.example.demo.model.Payment;
 import com.example.demo.service.RegistrationService;
 import com.example.demo.service.UserNotFoundException;
@@ -10,12 +11,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.net.URI;
 
 @RestController
 public class PaymentController {
 
     @Autowired
     RegistrationService registrationService;
+    @Autowired
+    PaymentRepository paymentRepository;
 
     @PostMapping("/payments")
     ResponseEntity<String> makePayment(@Valid @RequestBody Payment payment)
@@ -24,6 +28,8 @@ public class PaymentController {
         if (registrationService.findUsersByCreditCard(payment.getCreditCardNo())
             .isEmpty()) throw new UserNotFoundException();
 
-        return ResponseEntity.created(null).build();
+        paymentRepository.save(payment);
+
+        return ResponseEntity.created(URI.create("/payments")).build();
     }
 }
